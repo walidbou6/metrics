@@ -1,12 +1,27 @@
+# Copyright The PyTorch Lightning team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """File for non sklearn metrics that are to be used for reference for tests."""
 from typing import Optional, Union
 
 import numpy as np
+import torch
+import torch.nn.functional as F
 from sklearn.metrics._regression import _check_reg_targets
 from sklearn.utils import assert_all_finite, check_consistent_length, column_or_1d
 
 
-def symmetric_mean_absolute_percentage_error(
+def _symmetric_mean_absolute_percentage_error(
     y_true: np.ndarray,
     y_pred: np.ndarray,
     sample_weight: Optional[np.ndarray] = None,
@@ -62,7 +77,7 @@ def symmetric_mean_absolute_percentage_error(
 # sklearn reference function from
 # https://github.com/samronsin/scikit-learn/blob/calibration-loss/sklearn/metrics/_classification.py.
 # TODO: when the PR into sklearn is accepted, update this to use the official function.
-def calibration_error(
+def _calibration_error(
     y_true: np.ndarray,
     y_prob: np.ndarray,
     sample_weight: Optional[np.ndarray] = None,
@@ -185,3 +200,16 @@ def calibration_error(
             loss += np.sum(np.nan_to_num(debias))
         loss = np.sqrt(max(loss, 0.0))
     return loss
+
+
+def _sk_sam(preds, target, reduction):
+    similarity = F.cosine_similarity(preds, target)
+    sam_score = torch.clamp(similarity, -1, 1).acos()
+    # reduction
+    if reduction == "sum":
+        to_return = torch.sum(sam_score)
+    elif reduction == "elementwise_mean":
+        to_return = torch.mean(sam_score)
+    else:
+        to_return = sam_score
+    return to_return
