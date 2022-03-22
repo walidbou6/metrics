@@ -7,25 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Note: we move fast, but still we preserve 0.1 version (one feature release) back compatibility.**
 
 
-## [UnReleased] - 2022-MM-DD
-
-### Added
-
-
-### Changed
-
-
-### Deprecated
-
-
-### Removed
-
+## [0.7.3] - 2022-03-22
 
 ### Fixed
 
 - Fixed unsafe log operation in `TweedieDeviace` for power=1 ([#847](https://github.com/PyTorchLightning/metrics/pull/847))
-
-
 - Fixed bug in MAP metric related to either no ground truth or no predictions ([#884](https://github.com/PyTorchLightning/metrics/pull/884))
 
 
